@@ -20,7 +20,8 @@
   "dependencies": {
     "modern-normalize": "^1.1.0",
     "notiflix": "^3.2.6",
-    "slim-select": "^2.6.0"
+    "slim-select": "^2.6.0",
+    "sweetalert2": "^11.7.31"
   },
   "devDependencies": {
     "@parcel/transformer-sass": "^2.6.0",
@@ -30,3 +31,4 @@
   },
   "browserslist": "> 0.5%, last 2 versions, not dead"
 }
+

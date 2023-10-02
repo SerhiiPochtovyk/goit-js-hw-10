@@ -4,6 +4,9 @@ const BASE_URL = 'https://api.thecatapi.com/v1';
 axios.defaults.headers.common['x-api-key'] =
   'live_SWwNDJ6lixvIgMTFSA1O4wT3iaw1WygGWikOVhdwUP1RCHZe5g4W3gX9Bf2NR5Jv';
 
+// https://api.thecatapi.com/v1/images/search?breed_ids={breed.id}
+// basic filter
+
 export function fetchBreeds() {
   return axios.get(`${BASE_URL}/breeds`).then(response => response.data);
 }

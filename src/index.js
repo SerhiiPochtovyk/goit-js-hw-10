@@ -1,6 +1,6 @@
 import { fetchBreeds, fetchCatByBreed } from './js/cat-api';
 import Swal from 'sweetalert2';
-import SlimSelect from 'slim-select';n
+import SlimSelect from 'slim-select';
 import 'slim-select/dist/slimselect.css';
 
 const breedSelect = document.querySelector('.breed-select');

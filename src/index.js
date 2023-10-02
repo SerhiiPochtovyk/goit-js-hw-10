@@ -1,77 +1,63 @@
-import { fetchBreeds, fetchCatByBreed } from './cat-api';
+import { fetchBreeds, fetchCatByBreed } from './js/cat-api';
+import Swal from 'sweetalert2';
+import SlimSelect from 'slim-select';
+import 'slim-select/dist/slimselect.css';
 
-const refs = {
-  selectEl: document.querySelector('.breed-select'),
-  catInfoEl: document.querySelector('.cat-info'),
-  loaderEl: document.querySelector('.loader'),
-  errorEl: document.querySelector('.error'),
-};
+const breedSelect = document.querySelector('.breed-select');
+const catInfo = document.querySelector('.cat-info');
+const loader = document.querySelector('.loader');
+const error = document.querySelector('.error');
 
-function showLoader() {
-  refs.loaderEl.style.display = 'block';
-  refs.selectEl.style.display = 'none';
-  refs.catInfoEl.style.display = 'none';
-}
+catInfo.classList.add('is-hidden');
 
-function hiddenLoader() {
-  refs.loaderEl.style.display = 'none';
-  refs.selectEl.style.display = 'block';
-  refs.catInfoEl.style.display = 'block';
-}
+breedSelect.addEventListener('change', createMarkup);
 
-function showError(message) {
-  refs.errorEl.textContent = message;
-}
+updateSelect();
 
-function clearError() {
-  refs.errorEl.textContent = '';
-}
+function updateSelect(data) {
+  loader.classList.remove('is-hidden');
 
-clearError();
-showLoader();
-fetchBreeds()
-  .then(data => {
-    if (data) {
-      data.forEach(breed => {
-        const option = document.createElement('option');
-        option.value = breed.id;
-        option.textContent = breed.name;
-        refs.selectEl.appendChild(option);
-      });
-    } else {
-      throw new Error('Oops! Something went wrong! Try reloading the page!');
-    }
-    hiddenLoader();
-  })
-  .catch(err => {
-    showError(err.message);
-    hiddenLoader();
-  });
-
-export const onSelectElChange = event => {
-  const selectedAnimal = event.target.value;
-  clearError();
-  showLoader();
-  fetchCatByBreed(selectedAnimal)
+  fetchBreeds(data)
     .then(data => {
-      if (data) {
-        const catImageUrl = data[0].url;
-        const catName = data[0].breeds[0].name;
-        const catDescr = data[0].breeds[0].description;
-
-        const markUp = `<img src="${catImageUrl}" height=400 width="600"/>
-         <h2 class="cats-name">${catName}</h2> <p>${catDescr}</p>`;
-
-        refs.catInfoEl.innerHTML = markUp;
-      } else {
-        throw new Error('Oops! Something went wrong! Try reloading the page!');
-      }
-      hiddenLoader();
+      loader.classList.add('is-hidden');
+      breedSelect.classList.remove('is-hidden');
+      breedSelect.innerHTML = '';
+      let markSelect = data.map(({ name, id }) => {
+        return `<option value ='${id}'>${name}</option>`;
+      });
+      breedSelect.insertAdjacentHTML('beforeend', markSelect);
+      new SlimSelect({
+        select: breedSelect,
+      });
     })
-    .catch(err => {
-      showError(err.message);
-      hiddenLoader();
-    });
-};
+    .catch(onError);
+}
 
-refs.selectEl.addEventListener('change', onSelectElChange);
+function createMarkup(event) {
+  loader.classList.remove('is-hidden');
+  catInfo.classList.add('is-hidden');
+
+  const breedId = event.currentTarget.value;
+
+  fetchCatByBreed(breedId)
+    .then(data => {
+      loader.classList.add('is-hidden');
+      breedSelect.classList.remove('is-hidden');
+      const { url, breeds } = data[0];
+
+      catInfo.innerHTML = `<img src="${url}" alt="${breeds[0].name}" width="400"/><div class="box"><h2>${breeds[0].name}</h2><p>${breeds[0].description}</p><p><strong>Temperament:</strong> ${breeds[0].temperament}</p></div>`;
+      catInfo.classList.remove('is-hidden');
+    })
+    .catch(onError);
+}
+
+function onError() {
+  loader.classList.add('is-hidden');
+  breedSelect.innerHTML = '';
+
+  Swal.fire({
+    icon: 'error',
+    title: 'Oops!',
+    text: 'Something went wrong! Try reloading the page!',
+  });
+}
